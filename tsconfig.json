@@ -1,0 +1,55 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        "allowJs": true,
+        "checkJs": true,
+        "isolatedModules": true,
+        "resolveJsonModule": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "node_modules/@turbowarp/types"
+        ],
+        "types": [
+            "webpack-env",
+            "node",
+            "index.d.ts"
+        ],
+        "baseUrl": ".",
+        "outDir": "dist/native",
+        "paths": {
+            "fs-context": [
+                "src/fs-context/index"
+            ],
+            "package.json": [
+                "package.json"
+            ],
+            "fs-context/*": [
+                "src/fs-context/*"
+            ],
+            "@/*": [
+                "src/extension/*"
+            ],
+            "@sample/*": [
+                "src/fs-context/samples/*"
+            ],
+            "@plugin/*": [
+                "plugins/*"
+            ],
+            "@injector/*": [
+                "src/injectors/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*.ts",
+        "plugins/**/*.ts",
+        "plugins/disable.json"
+    ]
+}

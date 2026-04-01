@@ -1,0 +1,144 @@
+const path = require("path");
+const webpack = require("webpack");
+
+const Webpackbar = require("webpackbar");
+
+const tsconfigJson = require("./tsconfig.json");
+const packageJson = require("./package.json");
+const { merge } = require("webpack-merge");
+
+/**
+ * 
+ * @returns {import('webpack').Configuration[]}
+ */
+module.exports = () => {
+    const { webpack: webpackConfig } = require("./dist/native/src/native/plugins").load();
+    /**
+     * @type {import('webpack').Configuration}
+     */
+    const base = {
+        resolve: {
+            extensions: [".js", ".ts"],
+            alias: Object.fromEntries(
+                Object.entries(tsconfigJson.compilerOptions.paths).map(
+                    ([key, value]) => [
+                        key.replace("/*", ""),
+                        path.resolve(__dirname, value[0].replace("/*", "")),
+                    ]
+                )
+            ),
+        },
+        output: {
+            path: path.resolve(__dirname, "dist"),
+            clean: false
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.ts$/i,
+                    use: {
+                        loader: "ts-loader",
+                        options: {
+                            transpileOnly: true
+                        }
+                    },
+                    exclude: /node_modules/,
+                },
+            ],
+        },
+        plugins: [
+            new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+        ],
+        devServer: {
+            setupExitSignals: false,
+            webSocketServer: "ws",
+            client: {
+                logging: "none",
+                overlay: false
+            },
+            allowedHosts: "all",
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods":
+                    "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+                "Access-Control-Allow-Headers":
+                    "X-Requested-With, content-type, Authorization",
+            },
+            static: "dist"
+        },
+        mode: process.env.NODE_ENV,
+        stats: "errors-warnings",
+    };
+    return [
+        ...packageJson.extension.platform.map((platform) => {
+            const extensionFilename = `[${platform}]${packageJson.extension.id}@${packageJson.extension.version}.js`;
+            return merge(base, {
+                name: platform,
+                entry: "fs-context/entry.ts",
+                output: {
+                    filename: extensionFilename,
+                },
+                plugins: [
+                    new Webpackbar({
+                        name: packageJson.extension.name.toUpperCase(),
+                        color: "green",
+                    }),
+                    new webpack.DefinePlugin({
+                        fsContext: JSON.stringify({
+                            platform,
+                            developing: process.env.NODE_ENV === "development",
+                            extension: packageJson.extension,
+                        }),
+                    }),
+                ],
+                devServer: {
+                    port: 8000,
+                    setupMiddlewares(mw, server) {
+                        server.app.get("/", (_, res) => {
+                            res.redirect(`/${extensionFilename}`);
+                        });
+                        return mw;
+                    },
+                }
+            }, webpackConfig[platform]({ filename: extensionFilename, base }) ?? {});
+        }),
+        merge(base, {
+            name: "injector",
+            entry: "@injector",
+            output: {
+                filename: "injector.dist.js",
+                library: {
+                    name: "Inject",
+                    export: "default",
+                    type: "assign"
+                }
+            },
+            plugins: [
+                new Webpackbar({
+                    name: "INJECTOR",
+                    color: "green",
+                }),
+                new webpack.DefinePlugin({
+                    fsContext: JSON.stringify({
+                        platform: "injectorOnly",
+                        developing: process.env.NODE_ENV === "development",
+                        extension: packageJson.extension,
+                    }),
+                }),
+                new webpack.BannerPlugin({
+                    banner: "let Inject;",
+                    raw: true
+                })
+            ],
+            devServer: {
+                port: 2778,
+                setupMiddlewares(mw, server) {
+                    server.app.get("/", (_, res) => {
+                        res.redirect("/injector.dist.js");
+                    });
+                    return mw;
+                },
+            },
+        })
+    ];
+};

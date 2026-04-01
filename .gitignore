@@ -1,0 +1,5 @@
+#可以还原
+node_modules
+#编译
+dist
+*.js

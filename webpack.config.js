@@ -1,11 +1,14 @@
 const path = require("path");
 const webpack = require("webpack");
+const createJiti = require("jiti");
 
 const Webpackbar = require("webpackbar");
 
 const tsconfigJson = require("./tsconfig.json");
 const packageJson = require("./package.json");
 const { merge } = require("webpack-merge");
+
+const projectJson = require("./extension/entry.ts").default;
 
 /**
  * 
@@ -70,8 +73,8 @@ module.exports = () => {
         stats: "errors-warnings",
     };
     return [
-        ...packageJson.extension.platform.map((platform) => {
-            const extensionFilename = `[${platform}]${packageJson.extension.id}@${packageJson.extension.version}.js`;
+        ...projectJson.platform.map((platform) => {
+            const extensionFilename = `[${platform}]${projectJson.id}@${projectJson.version}.js`;
             return merge(base, {
                 name: platform,
                 entry: "fs-context/entry.ts",
@@ -80,14 +83,14 @@ module.exports = () => {
                 },
                 plugins: [
                     new Webpackbar({
-                        name: packageJson.extension.name.toUpperCase(),
+                        name: projectJson.name.toUpperCase(),
                         color: "green",
                     }),
                     new webpack.DefinePlugin({
                         fsContext: JSON.stringify({
                             platform,
                             developing: process.env.NODE_ENV === "development",
-                            extension: packageJson.extension,
+                            extension: projectJson,
                         }),
                     }),
                 ],
@@ -122,7 +125,7 @@ module.exports = () => {
                     fsContext: JSON.stringify({
                         platform: "injectorOnly",
                         developing: process.env.NODE_ENV === "development",
-                        extension: packageJson.extension,
+                            extension: projectJson,
                     }),
                 }),
                 new webpack.BannerPlugin({

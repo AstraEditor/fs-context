@@ -18,17 +18,6 @@
         "postbuild": "run-s clean",
         "build": "cross-env NODE_ENV=production webpack --config-name"
     },
-    "extension": {
-        "id": "vvenvehelper",
-        "name": "VVenve Helper",
-        "description": "管理 VVenve 的全局上下文。",
-        "version": "1.0.0",
-        "platform": [
-            "gandi"
-        ],
-        "author": "陨落基围虾",
-        "language": "en"
-    },
     "author": "陨落基围虾 <3161880837@qq.com>",
     "license": "MIT",
     "devDependencies": {

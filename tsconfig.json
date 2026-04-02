@@ -34,7 +34,7 @@
                 "src/fs-context/*"
             ],
             "@/*": [
-                "src/extension/*"
+                "extension/*"
             ],
             "@sample/*": [
                 "src/fs-context/samples/*"
@@ -44,12 +44,16 @@
             ],
             "@injector/*": [
                 "src/injectors/*"
+            ],
+            "@structs/*": [
+                "src/fs-context/structs/*"
             ]
         }
     },
     "include": [
         "src/**/*.ts",
         "plugins/**/*.ts",
-        "plugins/disable.json"
+        "plugins/disable.json",
+        "extension/**/*.ts"
     ]
 }

@@ -59,5 +59,6 @@
         "chalk": "4",
         "clipcc-extension": "^0.2.0",
         "md5": "^2.3.0"
-    }
+    },
+    "packageManager": "yarn@1.22.22"
 }

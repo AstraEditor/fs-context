@@ -98,6 +98,9 @@ module.exports = () => {
                     port: 8000,
                     setupMiddlewares(mw, server) {
                         server.app.get("/", (_, res) => {
+                            res.setHeader("Access-Control-Allow-Origin", "*");
+                            res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+                            res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type, Authorization");
                             res.redirect(`/${extensionFilename}`);
                         });
                         return mw;

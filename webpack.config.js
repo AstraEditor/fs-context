@@ -97,10 +97,20 @@ module.exports = () => {
                 devServer: {
                     port: 8000,
                     setupMiddlewares(mw, server) {
+                        const corsHeaders = {
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+                            "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
+                        };
+                        server.app.get("/meta", (_, res) => {
+                            Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+                            res.json({
+                                extensionUrl: `/${extensionFilename}`,
+                                ...projectJson,
+                            });
+                        });
                         server.app.get("/", (_, res) => {
-                            res.setHeader("Access-Control-Allow-Origin", "*");
-                            res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-                            res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type, Authorization");
+                            Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
                             res.redirect(`/${extensionFilename}`);
                         });
                         return mw;
